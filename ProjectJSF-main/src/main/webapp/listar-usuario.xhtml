@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="WEB-INF/template/Layout.xhtml">
+
+	<ui:define name="titulo2">
+		Listagem de usuarios
+	</ui:define>
+	<ui:define name="conteudo">
+		<f:metadata>
+			<f:viewAction action="#{usuarioBean.findAll}" />
+		</f:metadata>
+		<h:form id="frm">
+			<p:messages id="messages" />
+			
+			<p:toolbar id="toolbar">
+				<p:toolbarGroup>
+					<p:inputText id="termoPesquisa" placeholder="Digite um termo aqui para pesquisa"
+						size="50" value="#{usuarioBean.termoPesquisa}" />
+
+					<p:commandButton value="Pesquisar" icon="fa fa-search"
+						actionListener="#{usuarioBean.pesquisar}"
+						update="usuarioDataTable messages" process="@this termoPesquisa"/>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton value="Novo" icon="fa fa-plus"
+						actionListener="#{usuarioBean.prepararNovoUsuario}"
+						oncomplete="PF('usuarioDialogWidgetVar').show()" 
+						update="usuarioDialog"
+						process="@this"> 
+						<p:resetInput target="usuarioDialog" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton 
+						title="Editar" 
+						icon="fa fa-edit"
+						disabled="#{not usuarioBean.usuarioSelecionado}" 
+						oncomplete="PF('usuarioDialogWidgetVar').show()" 
+						update="usuarioDialog"
+						process="@this" >
+						<p:resetInput target="usuarioDialog" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+					
+					<p:commandButton 
+						title="Excluir" 
+						icon="fa fa-trash" 
+						disabled="#{not usuarioBean.usuarioSelecionado}" 
+						actionListener="#{usuarioBean.excluir}"
+						update="messages usuarioDataTable toolbar"
+						process="@this">
+						<p:confirm icon="ui-icon-alert" 
+							header="Confirmção de eclusão" 
+							message="Deseja realmente excluir?"/>
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton 
+						id="exportar" 
+						title="Exportar para o excel"
+						icon="fa fa-file-excel-o" 
+						ajax="false" 
+						process="@this"
+						update="usuarioDataTable messages" 
+						immediate="true">
+						<p:dataExporter type="xls" target="usuarioDataTable" fileName="Usuarios" />
+					</p:commandButton>
+					
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" /></span>
+
+					<p:button title="Visualizar Produtos" icon="fa fa-search"
+						outcome="produtos.xhtml" />
+
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:spacer height="20px" />
+
+			<p:dataTable 
+				id="usuarioDataTable"
+				value="#{usuarioBean.listaUsuario}" 
+				var="usuario"
+				emptyMessage="Nenhuma informação a ser exibida!" 
+				paginator="true"
+				rows="10" 
+				paginatorPosition="bottom"
+				selectionMode="single"
+				selection="#{usuarioBean.usuario}"
+				rowKey="#{usuario.id}"
+			>
+				<p:ajax event="rowSelect" update="frm:toolbar"/>
+				<p:ajax event="rowUnselect" update="frm:toolbar"/>
+				
+				<p:column headerText="ID usuario">
+					<h:outputText value="#{usuario.id}" />
+				</p:column>
+				
+				<p:column headerText="Nome usuario" sortBy="#{usuario.nome}">
+					<h:outputText value="#{usuario.nome}" />
+				</p:column>
+
+				<p:column headerText="Email usuario">
+					<h:outputText value="#{usuario.email}" />
+				</p:column>
+
+				<p:column headerText="Tipo usuario">
+					<h:outputText value="#{usuario.tipo}" />
+				</p:column>
+			</p:dataTable>
+
+			<p:dialog 
+				id="usuarioDialog" 
+				header="Novo usuario" 
+				widgetVar="usuarioDialogWidgetVar"
+				modal="true" 
+				resizable="false" 
+				closeOnEscape="true"
+				rendered="#{usuarioBean.usuario ne null}">
+				<p:messages id="usuarioMessages"/>
+				<p:defaultCommand target="salvarCommandButton" scope="usuarioDialog"/>
+
+				<h:panelGrid id="usuarioPanelGrid" columns="2">
+
+					<p:outputLabel value="Nome usuario: " for="nome" />
+					<h:panelGroup>
+						<p:inputText id="nome" value="#{usuarioBean.usuario.nome}"
+							label="Nome" size="60" maxlength="80" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Email usuario: " for="email" />
+					<h:panelGroup>
+						<p:inputText id="email" value="#{usuarioBean.usuario.email}"
+							label="Email" size="60" maxlength="80" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Senha usuario: " for="senha" />
+					<h:panelGroup>
+						<h:inputSecret id="senha" value="#{usuarioBean.usuario.senha}"
+							label="Senha" size="60" maxlength="80" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Tipo usuario: " for="tipo" />
+					<h:panelGroup>
+						<p:selectOneMenu id="tipo" value="#{usuarioBean.usuario.tipo}"
+							label="Tipo" style="width: 408px;">
+							<f:selectItem itemLabel="Selecione..." noSelectionOption="true" />
+							<f:selectItems value="#{usuarioBean.tipoUsuario}"
+								var="tipoUsuario" itemLabel="#{tipoUsuario.descricao}"
+								itemValue="#{tipoUsuario}" />
+						</p:selectOneMenu>
+					</h:panelGroup>
+
+					<!-- Quebra de linha -->
+					<h:outputLabel />
+					<div>
+						<p:commandButton 
+							id="salvarCommandButton"
+							value="Salvar"
+							actionListener="#{usuarioBean.salvar}" 
+							update="usuarioPanelGrid usuarioMessages" 
+							oncomplete="if (!args.validationFailed) PF('usuarioDialogWidgetVar').hide()" 
+							process="usuarioDialog"
+						/>
+					</div>
+				</h:panelGrid>
+
+			</p:dialog>
+
+		</h:form>
+	</ui:define>
+</ui:composition>
+
+<!-- <h:outputLabel />
+<div>
+	<p:commandLink value="Cadastro usuario?"
+		action="#{usuarioBean.cadastroUsuario}" />
+</div> --> 

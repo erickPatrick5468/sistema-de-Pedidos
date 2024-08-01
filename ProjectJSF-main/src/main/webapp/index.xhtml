@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="WEB-INF/template/template.xhtml">
+	
+	<ui:define name="title">Home</ui:define>
+	<ui:define name="content">
+		<h:panelGroup rendered="#{usuarioBean.usuarioAutenticado != null}">
+			<h1>Bem-vindo, #{usuarioBean.usuarioAutenticado.nome}!</h1>
+			<h:panelGroup
+				rendered="#{usuarioBean.usuarioAutenticado.tipo eq 'VENDEDOR'}">
+				<h:outputText
+					value="Você está logado como Vendedor. Aqui estão suas opções:" />
+				<h:link outcome="cadastroProduto.xhtml"
+					value="Cadastrar Novo Produto" />
+				<h:link outcome="pedidos.xhtml" value="Ver Meus Pedidos" />
+			</h:panelGroup>
+			<h:panelGroup
+				rendered="#{usuarioBean.usuarioAutenticado.tipo eq 'COMPRADOR'}">
+				<h:outputText
+					value="Você está logado como Comprador. Aqui estão suas opções:" />
+				<h:link outcome="produtos.xhtml" value="Ver Produtos" />
+				<h:link outcome="pedidos.xhtml" value="Ver Meus Pedidos" />
+			</h:panelGroup>
+			<h:panelGroup
+				rendered="#{usuarioBean.usuarioAutenticado.tipo eq 'ADMINISTRADOR'}">
+				<h:outputText
+					value="Você está logado como Administrador. Aqui estão suas opções:" />
+				<h:link outcome="adminUsuarios.xhtml" value="Gerenciar Usuários" />
+			</h:panelGroup>
+		</h:panelGroup>
+
+		<h:panelGroup rendered="#{usuarioBean.usuarioAutenticado == null}">
+			<h1>Bem-vindo ao Sistema de Pedidos</h1>
+			<h:link outcome="produtos.xhtml" value="Visualizar Produtos" />
+		</h:panelGroup>
+	</ui:define>
+
+</ui:composition>

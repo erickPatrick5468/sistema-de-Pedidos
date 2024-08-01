@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:define name="title">Administração de Usuários</ui:define>
+<ui:define name="content">
+	<h:dataTable value="#{adminBean.listarUsuarios()}" var="usuario">
+		<h:column>
+			<f:facet name="header">Nome</f:facet>
+                #{usuario.nome}
+            </h:column>
+		<h:column>
+			<f:facet name="header">Email</f:facet>
+                #{usuario.email}
+            </h:column>
+		<h:column>
+			<f:facet name="header">Tipo</f:facet>
+                #{usuario.tipo}
+            </h:column>
+		<h:column>
+			<f:facet name="header">Ação</f:facet>
+			<h:commandButton value="Aprovar"
+				action="#{adminBean.aprovarUsuario(usuario)}"
+				rendered="#{usuario.aprovado == false}" />
+			<h:commandButton value="Bloquear"
+				action="#{adminBean.bloquearUsuario(usuario)}"
+				rendered="#{usuario.aprovado == true}" />
+			<h:commandButton value="Redefinir Senha"
+				action="#{adminBean.redefinirSenha(usuario)}" />
+		</h:column>
+	</h:dataTable>
+</ui:define>
+</ui:composition>

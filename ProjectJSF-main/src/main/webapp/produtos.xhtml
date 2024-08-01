@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="WEB-INF/template/Layout.xhtml">
+
+
+	<ui:define name="titulo2">
+		Listagem de produtos
+	</ui:define>
+	<ui:define name="conteudo">
+		<f:metadata>
+			<f:viewAction action="#{produtoBean.findAll}" />
+		</f:metadata>
+		<h:form id="frm">
+			<p:messages id="messages" />
+
+			<p:toolbar id="toolbar">
+				<p:toolbarGroup>
+					<p:inputText id="termoPesquisa"
+						placeholder="Digite um termo aqui para pesquisa" size="50"
+						value="#{produtoBean.termoPesquisa}" />
+
+					<p:commandButton value="Pesquisar" icon="fa fa-search"
+						actionListener="#{produtoBean.pesquisar}"
+						update="produtoDataTable messages" process="@this termoPesquisa" />
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton value="Novo" icon="fa fa-plus"
+						actionListener="#{produtoBean.prepararNovoProduto}"
+						oncomplete="PF('produtoDialogWidgetVar').show()"
+						update="produtoDialog" process="@this">
+						<p:resetInput target="produtoDialog" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton title="Editar" icon="fa fa-edit"
+						disabled="#{not produtoBean.produtoSelecionado}"
+						oncomplete="PF('produtoDialogWidgetVar').show()"
+						update="produtoDialog" process="@this">
+						<p:resetInput target="produtoDialog" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton title="Excluir" icon="fa fa-trash"
+						disabled="#{not produtoBean.produtoSelecionado}"
+						actionListener="#{produtoBean.excluir}"
+						update="messages produtoDataTable toolbar" process="@this">
+						<p:confirm icon="ui-icon-alert" header="Confirmção de eclusão"
+							message="Deseja realmente excluir?" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:commandButton id="exportar" title="Exportar para o excel"
+						icon="fa fa-file-excel-o" ajax="false" process="@this"
+						update="produtoDataTable messages" immediate="true">
+						<p:dataExporter type="xls" target="produtoDataTable"
+							fileName="Produtos" />
+					</p:commandButton>
+
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:spacer height="20px" />
+
+			<p:dataTable id="produtoDataTable"
+				value="#{produtoBean.listaProduto}" var="produto"
+				emptyMessage="Nenhuma informação a ser exibida!" paginator="true"
+				rows="10" paginatorPosition="bottom" selectionMode="single"
+				selection="#{produtoBean.produto}" rowKey="#{produto.id}">
+				<p:ajax event="rowSelect" update="frm:toolbar" />
+				<p:ajax event="rowUnselect" update="frm:toolbar" />
+
+				<p:column headerText="Nome produto" sortBy="#{produto.nome}">
+					<h:outputText value="#{produto.nome}" />
+				</p:column>
+
+				<p:column headerText="Preço produto">
+					<h:outputText value="#{produto.preco}" />
+				</p:column>
+
+				<p:column headerText="Descrição produto">
+					<h:outputText value="#{produto.descricao}" />
+				</p:column>
+
+				<p:column headerText="Vendedor produto">
+					<h:outputText value="#{produto.vendedorId}" />
+				</p:column>
+			</p:dataTable>
+
+			<p:dialog id="produtoDialog" header="Novo produto"
+				widgetVar="produtoDialogWidgetVar" modal="true" resizable="false"
+				closeOnEscape="true" rendered="#{produtoBean.produto ne null}">
+				
+				<p:toolbar>
+					<p:toolbarGroup>
+						<p:commandButton id="salvarCommandButton" value="Salvar"
+							actionListener="#{produtoBean.salvar}"
+							update="produtoPanelGrid produtoMessages"
+							oncomplete="if (!args.validationFailed) PF('produtoDialogWidgetVar').hide()"
+							process="produtoDialog" 
+						/>
+					</p:toolbarGroup>
+					<p:toolbarGroup>
+						<span class="ui-separator"> <span
+							class="ui-icon ui-icon-grip-dotted-vertical" />
+						</span>
+					</p:toolbarGroup>
+					<p:toolbarGroup>
+							<p:button 
+								title="Visualizar vendedores" 
+								icon="fa fa-search"
+								outcome="listar-usuario.xhtml" 
+							/>
+					</p:toolbarGroup>
+				</p:toolbar>
+				<p:messages id="produtoMessages" />
+				<p:defaultCommand target="salvarCommandButton" scope="produtoDialog" />
+
+				<h:panelGrid id="produtoPanelGrid" columns="2">
+
+					<p:outputLabel value="Nome produto: " for="nome" />
+					<h:panelGroup>
+						<p:inputText id="nome" value="#{produtoBean.produto.nome}"
+							label="Nome" size="60" maxlength="80" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Preço produto: " for="preco" />
+					<h:panelGroup>
+						<p:inputNumber id="preco" value="#{produtoBean.produto.preco}"
+							label="Preco" size="60" maxlength="80" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Descriçao produto: " for="descricao" />
+					<h:panelGroup>
+						<p:inputText id="descricao"
+							value="#{produtoBean.produto.descricao}" label="Descricao"
+							size="60" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Vendedor produto: " for="vendedorId" />
+					<h:panelGroup>
+						<p:inputText id="vendedorId"
+							value="#{produtoBean.produto.vendedorId}" label="VendendorId"
+							size="60" />
+					</h:panelGroup>
+
+					<!-- Quebra de linha -->
+					<h:outputLabel />
+				</h:panelGrid>
+			</p:dialog>
+
+		</h:form>
+	</ui:define>
+</ui:composition>
